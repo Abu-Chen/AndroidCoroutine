@@ -32,11 +32,17 @@
             android:layout_height="wrap_content"
             android:text="run task, retry when fail or timeout" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="run tasks in the same time" />
+
         <TextView
             android:id="@+id/tv_display"
             android:layout_width="match_parent"
             android:textStyle="bold"
-            android:text="@{ViewModel.state}"
+            android:text="@{ViewModel.uiText}"
             android:layout_height="match_parent" />
     </LinearLayout>
 </layout>

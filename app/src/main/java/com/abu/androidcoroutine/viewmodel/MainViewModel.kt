@@ -3,16 +3,17 @@ package com.abu.androidcoroutine.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.abu.androidcoroutine.task.Task
+import com.abu.androidcoroutine.task.TaskCallback
 import kotlinx.coroutines.*
 
 class MainViewModel : ViewModel() {
-    val state: MutableLiveData<String> = MutableLiveData()
+    val uiText: MutableLiveData<String> = MutableLiveData()
 
     /** Run task */
     fun run() {
         GlobalScope.launch(Dispatchers.Default) {
-            val response = Task.get().costSec(1)
-            state.postValue("response:$response\nfinish")
+            val response = Task.get().run(1)
+            uiText.postValue("response:$response\nfinish")
         }
     }
 
@@ -22,10 +23,10 @@ class MainViewModel : ViewModel() {
             var response: String
             var exeCount = 1
             do {
-                response = Task.get().costSec(1)
-                state.postValue("Run count:$exeCount, response = $response")
+                response = Task.get().run(1)
+                uiText.postValue("Run count:$exeCount, response = $response")
             } while (response == Task.FAIL && exeCount++ <= retryTime)
-            state.postValue("response:$response\nfinish")
+            uiText.postValue("response:$response\nfinish")
         }
     }
 
@@ -37,17 +38,34 @@ class MainViewModel : ViewModel() {
             var dynamicCostTime = costTime
             do {
                 response = withTimeoutOrNull(timeout*1000) {
-                    Task.get().costSec(dynamicCostTime--)
+                    Task.get().run(dynamicCostTime--)
                 }
                 if(response == null) {
-                    state.postValue("Timeout with $timeout sec.")
+                    uiText.postValue("Timeout with $timeout sec.")
                 }
-                state.postValue("Run count:$exeCount, response = $response ")
+                uiText.postValue("Run count:$exeCount, response = $response ")
             } while (
                 (response == null)
                 && exeCount++ <= retryTime
             )
-            state.postValue("response:$response\nfinish")
+            uiText.postValue("response:$response\nfinish")
         }
+    }
+
+    fun runMultiJobs() {
+        GlobalScope.launch(Dispatchers.Default) {
+            val jobs: List<Job> = (1..5).map { jobId ->
+                GlobalScope.launch(Dispatchers.Default) {
+                    Task.get().runLoop(jobId.toString(), jobId, 1, object : TaskCallback{
+                        override fun onUpdate(state: String) {
+                            uiText.postValue("$state")
+                        }
+                    })
+                }
+            }
+            jobs.joinAll()
+            uiText.postValue("Finish")
+        }
+        uiText.postValue("Start")
     }
 }

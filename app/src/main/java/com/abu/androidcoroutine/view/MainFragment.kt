@@ -33,7 +33,7 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         activity?.let {
-            viewModel.state.observe(it, Observer { log ->
+            viewModel.uiText.observe(it, Observer { log ->
                 binding.tvDisplay.text = binding.tvDisplay.text.toString() + "$log\n"
             })
         }
@@ -44,6 +44,7 @@ class MainFragment : Fragment() {
         binding.btn1.setOnClickListener{ viewModel.run() }
         binding.btn2.setOnClickListener { viewModel.runRetry(retryTime = 3) }
         binding.btn3.setOnClickListener { viewModel.runRetryWithTimeout(retryTime = 3, timeout = 2, costTime = 4) }
+        binding.btn4.setOnClickListener { viewModel.runMultiJobs() }
     }
 
     override fun onResume() {
