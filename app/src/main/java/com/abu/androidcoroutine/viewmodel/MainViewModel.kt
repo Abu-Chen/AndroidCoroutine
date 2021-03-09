@@ -2,6 +2,7 @@ package com.abu.androidcoroutine.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.abu.androidcoroutine.task.Task
 import com.abu.androidcoroutine.task.TaskCallback
 import kotlinx.coroutines.*
@@ -11,7 +12,7 @@ class MainViewModel : ViewModel() {
 
     /** Run task */
     fun run() {
-        GlobalScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             val response = Task.get().run(1)
             uiText.postValue("response:$response\nfinish")
         }
@@ -19,7 +20,7 @@ class MainViewModel : ViewModel() {
 
     /** Run task, retry when fail */
     fun runRetry(retryTime: Int) {
-        GlobalScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             var response: String
             var exeCount = 1
             do {
@@ -32,7 +33,7 @@ class MainViewModel : ViewModel() {
 
     /** Run task, retry when fail or timeout */
     fun runRetryWithTimeout(retryTime: Int, timeout: Long, costTime: Int) {
-        GlobalScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             var response: String?
             var exeCount = 1
             var dynamicCostTime = costTime
